@@ -1,0 +1,57 @@
+---
+- hosts: all
+  tasks:
+    - name: Garantindo dependencias [Debian]
+      ansible.builtin.package:
+        name:
+          - apt-transport-https
+          - uuid-runtime
+          - pwgen
+          - default-jdk
+          - gnupg
+      when: ansible_distribution|lower == 'ubuntu'
+
+    - name: Garantindo dependencias [CentOS]
+      ansible.builtin.package:
+        name:
+          - epel-release
+          - java-latest-openjdk
+          - pwgen
+          - gnupg
+      when: ansible_distribution|lower == 'centos'
+
+    - name: Garantindo Mongodb
+      block:
+        - name: Importando chave do pacote do Mongodb [Debian]
+          ansible.builtin.shell: |
+            wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
+            echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+            apt update
+          when: ansible_distribution|lower == 'ubuntu'
+
+#        - name: Garantindo repositorio [Debian]
+#          ansible.builtin.shell: echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list && apt update
+#          when: ansible_distribution|lower = 'ubuntu'
+
+        - name: Garantindo repositorio [CentOS]
+          ansible.builtin.blockinfile:
+            path: /etc/yum.repos.d/mongodb-org-5.0.repo
+            block: |
+              [mongodb-org-5.0]
+              name=MongoDB Repository
+              baseurl=https://repo.mongodb.org/yum/redhat/8/mongodb-org/5.0/x86_64/
+              gpgcheck=1
+              enabled=1
+              gpgkey=https://www.mongodb.org/static/pgp/server-5.0.asc
+            create: yes
+          when: ansible_distribution|lower == 'centos'
+
+        - name: Garantindo instalação do MongoDB
+          ansible.builtin.package:
+            name: mongodb-org
+
+        - name: Habitando serviço
+          ansible.builtin.service:
+            name: mongod
+            state: started
+            enabled: yes
