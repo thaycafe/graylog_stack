@@ -1,0 +1,18 @@
+---
+- name: Vericando se as variaveis obrigatorias foram inseridas
+  fail:
+    msg: Variável {{ item }} não está definida
+  when: item not in vars
+  with_items: "{{ required_vars }}"
+
+- name: Provisionando MongoDB
+  include_tasks: mongodb.yml
+  
+- name: Provisionando Elasticsearch 
+  include_tasks: elasticsearch.yml 
+
+- name: Provisionando Graylog
+  include_tasks: graylog.yml
+
+- name: Configurando serviços
+  include_tasks: setup.yml

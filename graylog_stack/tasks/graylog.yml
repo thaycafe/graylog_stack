@@ -1,0 +1,32 @@
+---
+- name: Garantindo instalação para Debian
+  block:
+    - name: Garantindo repositorio
+      get_url:
+        url: https://packages.graylog2.org/repo/packages/graylog-4.2-repository_latest.deb
+        dest: /tmp/graylog_repository.deb
+    
+    - name: Garantindo instalação do repositório para Debian
+      apt:
+        deb: "/tmp/graylog_repository.deb"
+        state: present
+        update_cache: yes
+
+  when: ansible_os_family|lower == 'debian'
+
+- name: Garantindo repositorio Para CentOS
+  yum:
+    name: https://packages.graylog2.org/repo/packages/graylog-4.2-repository_latest.rpm
+    state: present
+    update_cache: True
+    disable_gpg_check: True
+
+  when: ansible_os_family|lower == 'redhat'
+
+- name: Garantindo instalação do Graylog
+  package: 
+    name:
+      - graylog-server
+      - graylog-integrations-plugins
+    state: present
+    update_cache: yes

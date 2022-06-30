@@ -1,0 +1,47 @@
+---
+- name: "[MongoDB] Garantindo dependencias - Debian"
+  ansible.builtin.package:
+    name:
+      - apt-transport-https
+      - uuid-runtime
+      - pwgen
+      - default-jdk
+      - gnupg
+  when: ansible_os_family|lower == 'debian'
+
+- name: "[MongoDB] Garantindo dependencias - CentOS"
+  ansible.builtin.package:
+    name:
+      - epel-release
+      - java-latest-openjdk
+      - pwgen
+      - gnupg
+  when: ansible_os_family|lower == 'redhat'
+
+- name: "[MongoDB] Importando chave do pacote do Mongodb - Debian"
+  block: 
+    - name: Importando chave do repositório
+      apt_key:
+        url: https://www.mongodb.org/static/pgp/server-4.2.asc
+        state: present 
+    - name: Garantindo repositório
+      apt_repository:
+        repo: deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main
+        state: present
+        filename: mongodb
+
+  when: ansible_os_family|lower == 'debian'
+
+- name: "[MongoDB] Garantindo repositorio - CentOS"
+  yum_repository:
+    name: mongodb
+    baseurl: https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.2/x86_64/
+    gpgcheck: no
+    gpgkey: https://www.mongodb.org/static/pgp/server-4.2.asc
+    description: "Repositorio do mongodb"
+    file: mongodb
+  when: ansible_os_family|lower == 'redhat'
+
+- name: "[MongoDB] Garantindo instalação"
+  ansible.builtin.package:
+    name: mongodb-org

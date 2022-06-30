@@ -1,0 +1,25 @@
+---
+
+## Graylog conf
+graylog_is_master: True
+graylog_bind_address: "127.0.0.1:9000"
+graylog_root_timezone: "America/Sao_Paulo"
+graylog_elasticsearch_shards: 4
+graylog_elasticsearch_replicas: 0
+graylog_elasticsearch_index_prefix: "graylog"
+graylog_mongodb_uri: mongodb://localhost/graylog
+
+
+## Elasticsearch conf
+es_cluster_name: "graylog-cloud-4linux"
+es_path_data: /var/lib/elasticsearch
+es_path_logs: /var/log/elasticsearch
+es_action_auto_create_index: false
+
+
+
+
+
+required_vars:
+  - graylog_password_secret
+  - graylog_root_password_sha2

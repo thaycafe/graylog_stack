@@ -1,0 +1,14 @@
+---
+- name: "[Graylog] Garantindo configuração"
+  template:
+    src: "server.conf.j2"
+    dest: "/etc/graylog/server/server.conf"
+  notify: 
+    - "Start MongoDB"
+    - "Restart Graylog"
+
+- name: "[Elasticsearch] Garantindo configuração"
+  template:
+    src: "elasticsearch.yml.j2"
+    dest: "/etc/elasticsearch/elasticsearch.yml"
+  notify: "Restart Elasticsearch"
